@@ -12,8 +12,9 @@ const IngredientForm = React.memo(props => {
     // CAN'T USE A HOOK IN A NESTED FUNCTION
     // YOU ALSO CAN'T USE HOOKS IN A EXPRESSIONS
     // useState();
+    
     event.preventDefault();
-    // ...
+    props.onAddIngredient({ title: enteredTitle, amount: enteredAmount });
   };
 
   return (
