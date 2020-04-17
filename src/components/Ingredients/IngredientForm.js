@@ -9,6 +9,9 @@ const IngredientForm = React.memo(props => {
   const [enteredAmount, setEnteredAmount] = useState('');
 
   const submitHandler = event => {
+    // CAN'T USE A HOOK IN A NESTED FUNCTION
+    // YOU ALSO CAN'T USE HOOKS IN A EXPRESSIONS
+    // useState();
     event.preventDefault();
     // ...
   };
