@@ -4,4 +4,12 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 
-ReactDOM.render(<App />, document.getElementById('root'));
+import AuthContextProvider from './context/auth-context';
+
+const app = (
+  <AuthContextProvider>
+    <App />
+  </AuthContextProvider>
+);
+
+ReactDOM.render(app, document.getElementById('root'));
