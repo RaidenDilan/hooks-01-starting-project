@@ -37,7 +37,7 @@ const Ingredients = () => {
       headers: { 'Content-Type': 'application/json' }
     })
       .then((res) => res.json())
-      .then((resData) => { 
+      .then((resData) => {
         setUserIngredients(prevIngredients => [
           ...prevIngredients,
           { id: resData.name, ...ingredient }
@@ -46,7 +46,10 @@ const Ingredients = () => {
   };
 
   const removeIngredientHandler = (ingredientId) => {
-    setUserIngredients(prevIngredients => prevIngredients.filter((ingredient) => ingredient.id !== ingredientId));
+    fetch(`https://react-hooks-update-616c5.firebaseio.com/ingredients/${ ingredientId }.json`, {
+      method: 'DELETE'
+    })
+      .then(() => setUserIngredients(prevIngredients => prevIngredients.filter((ingredient) => ingredient.id !== ingredientId)));
   };
 
   return (
