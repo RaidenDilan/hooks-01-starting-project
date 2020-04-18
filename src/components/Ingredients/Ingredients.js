@@ -13,15 +13,15 @@ const Ingredients = () => {
     fetch('https://react-hooks-update-616c5.firebaseio.com/ingredients.json')
       .then((res) => res.json())
       .then((resData) => {
-        const loadedIngreients = [];
+        const loadedIngredients = [];
         for (const key in resData) {
-          loadedIngreients.push({
+          loadedIngredients.push({
             id: key,
             title: resData[key].title,
             amount: resData[key].amount
           });
         }
-        setUserIngredients(loadedIngreients);
+        setUserIngredients(loadedIngredients);
       });
   }, []); /** @note Used like this, (with [] as a second arguement), useEffect() acts like componentDidMount: it runs ONLY ONCE (after the first render). */
 
@@ -49,13 +49,19 @@ const Ingredients = () => {
     setUserIngredients(prevIngredients => prevIngredients.filter((ingredient) => ingredient.id !== ingredientId));
   };
 
+  const filteredIngredientsHandler = filteredIngrient => {
+    setUserIngredients(filteredIngrient);
+  };
+
   return (
     <div className='App'>
       <IngredientForm onAddIngredient={ addIngredientHandler } />
 
       <section>
-        <Search />
-        <IngredientList ingredients={ userIngredients } onRemoveItem={ removeIngredientHandler } />
+        <Search onLoadIngredients={ filteredIngredientsHandler } />
+        <IngredientList
+          ingredients={ userIngredients }
+          onRemoveItem={ removeIngredientHandler } />
       </section>
     </div>
   );
