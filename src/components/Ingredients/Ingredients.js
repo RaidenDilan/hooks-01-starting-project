@@ -1,36 +1,53 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useReducer, useState, useEffect, useCallback } from 'react';
 
 import IngredientForm from './IngredientForm';
 import IngredientList from './IngredientList';
 import ErrorModal from '../UI/ErrorModal';
 import Search from './Search';
 
+/**
+ * [ingredientReducer description]
+ * @param  {[array]} currentIngredients [our current ingredients or better yet our state]
+ * @param  {[object]} action            [action]
+ */
+const ingredientReducer = (currentIngredients, action) => {
+  switch(action.type) {
+    case 'SET':
+      return action.ingredients;
+    case 'ADD':
+      return [...currentIngredients, action.ingredient]; // old array + new item
+    case 'DELETE':
+      return currentIngredients.filter(ing => ing.id !== action.id);
+    default:
+      throw new Error('Should not get there');
+  }
+};
+
 // function Ingredients() {}
 const Ingredients = () => {
-  const [userIngredients, setUserIngredients] = useState([]); // pass in an array since we are creating a list
+  const [userIngredients, dispatch] = useReducer(ingredientReducer, []);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState();
 
-  /** @note  Used like this, useEffect() acts likes componentDidUpdate: it runs the function AFTER EVERY component update (re-render). */
-  useEffect(() => {
-    fetch('https://react-hooks-update-616c5.firebaseio.com/ingredients.json')
-      .then((res) => res.json())
-      .then((resData) => {
-        const loadedIngredients = [];
-        for (const key in resData) {
-          loadedIngredients.push({ id: key, title: resData[key].title, amount: resData[key].amount });
-        }
-        setUserIngredients(loadedIngredients);
-      });
-  }, []); /** @note Used like this, (with [] as a second arguement), useEffect() acts like componentDidMount: it runs ONLY ONCE (after the first render). */
+  // /** @note  Used like this, useEffect() acts likes componentDidUpdate: it runs the function AFTER EVERY component update (re-render). */
+  // useEffect(() => {
+  //   fetch('https://react-hooks-update-616c5.firebaseio.com/ingredients.json')
+  //     .then((res) => res.json())
+  //     .then((resData) => {
+  //       const loadedIngredients = [];
+  //       for (const key in resData) {
+  //         loadedIngredients.push({ id: key, title: resData[key].title, amount: resData[key].amount });
+  //       }
+  //     });
+  // }, []); /** @note Used like this, (with [] as a second arguement), useEffect() acts like componentDidMount: it runs ONLY ONCE (after the first render). */
 
   useEffect(() => {
-    // runs twice
-    console.log('RENDERING INGREDIENTS', userIngredients);
+    console.log('RENDERING INGREDIENTS', userIngredients); // runs twice
   }, [userIngredients]);
 
   const filteredIngredientsHandler = useCallback(filteredIngredients => {
-    setUserIngredients(filteredIngredients);
+    // When working with useReducer(), React will re-render the component whenever your reducer returns a new state.
+    dispatch({ type: 'SET', ingredients: filteredIngredients });
   }, []); // this function has no dependencies, we leave an empty arr - []
 
   const addIngredientHandler = ingredient => {
@@ -45,26 +62,22 @@ const Ingredients = () => {
         return res.json();
       })
       .then((resData) => {
-        setUserIngredients(prevIngredients => [
-          ...prevIngredients,
-          { id: resData.name, ...ingredient }
-        ]);
+        return dispatch({ type: 'ADD', ingredient: { id: resData.name, ...ingredient } });
       });
   };
 
   const removeIngredientHandler = (ingredientId) => {
     setIsLoading(true);
-    fetch(`https://react-hooks-update-616c5.firebaseio.com/ingredients/${ ingredientId }.jon`, {
+    fetch(`https://react-hooks-update-616c5.firebaseio.com/ingredients/${ ingredientId }.json`, {
       method: 'DELETE'
     })
       .then(() => {
         setIsLoading(false);
-        setUserIngredients(prevIngredients => prevIngredients.filter((ingredient) => ingredient.id !== ingredientId));
+        dispatch({ type: 'DELETE', id: ingredientId });
       })
       .catch((err) => {
-        setError(err.message);
+        setError(err.message); // setError('Something went wrong ');
         setIsLoading(false);
-        // setError('Something went wrong ');
       });
   };
 
