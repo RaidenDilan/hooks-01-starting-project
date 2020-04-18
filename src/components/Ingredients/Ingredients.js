@@ -1,4 +1,4 @@
-import React, { useReducer, useEffect, useCallback } from 'react';
+import React, { useReducer, useEffect, useCallback, useMemo } from 'react';
 
 import IngredientForm from './IngredientForm';
 import IngredientList from './IngredientList';
@@ -52,7 +52,8 @@ const Ingredients = () => {
     dispatch({ type: 'SET', ingredients: filteredIngredients });
   }, []); // this function has no dependencies, we leave an empty arr - []
 
-  const addIngredientHandler = ingredient => {
+  // using the useCallback hook will not re-render our IngredientForm component because it's an old function, therefore it doesn't rebuild the component.
+  const addIngredientHandler = useCallback(ingredient => {
     dispatchHttp({ type: 'SEND' });
     fetch('https://react-hooks-update-616c5.firebaseio.com/ingredients.json', {
       method: 'POST',
@@ -69,9 +70,9 @@ const Ingredients = () => {
           ingredient: { id: resData.name, ...ingredient }
         });
       });
-  };
+  }, []);
 
-  const removeIngredientHandler = (ingredientId) => {
+  const removeIngredientHandler = useCallback(ingredientId => {
     dispatchHttp({ type: 'SEND' });
     fetch(`https://react-hooks-update-616c5.firebaseio.com/ingredients/${ ingredientId }.json`, {
       method: 'DELETE'
@@ -81,11 +82,19 @@ const Ingredients = () => {
         dispatch({ type: 'DELETE', id: ingredientId });
       })
       .catch((err) => dispatchHttp({ type: 'ERROR', errorMsg: err.message }));
-  };
+  }, []);
 
-  const clearError = () => {
+  const clearError = useCallback(() => {
     dispatchHttp({ type: 'CLEAR' });
-  };
+  }, []);
+
+  const ingredientList = useMemo(() => {
+    return (
+      <IngredientList
+        ingredients={ userIngredients }
+        onRemoveItem={ removeIngredientHandler } />
+    );
+  }, [removeIngredientHandler, userIngredients]);
 
   return (
     <div className='App'>
@@ -96,9 +105,7 @@ const Ingredients = () => {
 
       <section>
         <Search onLoadIngredients={ filteredIngredientsHandler } />
-        <IngredientList
-          ingredients={ userIngredients }
-          onRemoveItem={ removeIngredientHandler } />
+        { ingredientList }
       </section>
     </div>
   );
