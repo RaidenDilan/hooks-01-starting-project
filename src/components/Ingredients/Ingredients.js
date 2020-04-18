@@ -1,4 +1,4 @@
-import React, { useReducer, useState, useEffect, useCallback } from 'react';
+import React, { useReducer, useEffect, useCallback } from 'react';
 
 import IngredientForm from './IngredientForm';
 import IngredientList from './IngredientList';
@@ -11,7 +11,7 @@ import Search from './Search';
  * @param  {[object]} action            [action]
  */
 const ingredientReducer = (currentIngredients, action) => {
-  switch(action.type) {
+  switch (action.type) {
     case 'SET':
       return action.ingredients;
     case 'ADD':
@@ -19,27 +19,29 @@ const ingredientReducer = (currentIngredients, action) => {
     case 'DELETE':
       return currentIngredients.filter(ing => ing.id !== action.id);
     default:
-      throw new Error('Should not get there');
+      throw new Error('Should not reach this point!');
+  }
+};
+
+const httpReducer = (curHttpState, action) => {
+  switch (action.type) {
+    case 'SEND':
+      return { loading: true, error: null };
+    case 'RESPONSE':
+      return { ...curHttpState, loading: false };
+    case 'ERROR':
+      return { loading: false, error: action.errorMsg };
+    case 'CLEAR':
+      return { ...curHttpState, error: null };
+    default:
+      throw new Error('Should not reach this point!!');
   }
 };
 
 // function Ingredients() {}
 const Ingredients = () => {
   const [userIngredients, dispatch] = useReducer(ingredientReducer, []);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState();
-
-  // /** @note  Used like this, useEffect() acts likes componentDidUpdate: it runs the function AFTER EVERY component update (re-render). */
-  // useEffect(() => {
-  //   fetch('https://react-hooks-update-616c5.firebaseio.com/ingredients.json')
-  //     .then((res) => res.json())
-  //     .then((resData) => {
-  //       const loadedIngredients = [];
-  //       for (const key in resData) {
-  //         loadedIngredients.push({ id: key, title: resData[key].title, amount: resData[key].amount });
-  //       }
-  //     });
-  // }, []); /** @note Used like this, (with [] as a second arguement), useEffect() acts like componentDidMount: it runs ONLY ONCE (after the first render). */
+  const [httpState, dispatchHttp] = useReducer(httpReducer, []);
 
   useEffect(() => {
     console.log('RENDERING INGREDIENTS', userIngredients); // runs twice
@@ -51,50 +53,46 @@ const Ingredients = () => {
   }, []); // this function has no dependencies, we leave an empty arr - []
 
   const addIngredientHandler = ingredient => {
-    setIsLoading(true);
+    dispatchHttp({ type: 'SEND' });
     fetch('https://react-hooks-update-616c5.firebaseio.com/ingredients.json', {
       method: 'POST',
       body: JSON.stringify(ingredient),
       headers: { 'Content-Type': 'application/json' }
     })
       .then((res) => {
-        setIsLoading(false);
+        dispatchHttp({ type: 'RESPONSE' });
         return res.json();
       })
       .then((resData) => {
-        return dispatch({ type: 'ADD', ingredient: { id: resData.name, ...ingredient } });
+        return dispatch({
+          type: 'ADD',
+          ingredient: { id: resData.name, ...ingredient }
+        });
       });
   };
 
   const removeIngredientHandler = (ingredientId) => {
-    setIsLoading(true);
+    dispatchHttp({ type: 'SEND' });
     fetch(`https://react-hooks-update-616c5.firebaseio.com/ingredients/${ ingredientId }.json`, {
       method: 'DELETE'
     })
       .then(() => {
-        setIsLoading(false);
+        dispatchHttp({ type: 'RESPONSE' });
         dispatch({ type: 'DELETE', id: ingredientId });
       })
-      .catch((err) => {
-        setError(err.message); // setError('Something went wrong ');
-        setIsLoading(false);
-      });
+      .catch((err) => dispatchHttp({ type: 'ERROR', errorMsg: err.message }));
   };
 
   const clearError = () => {
-    // These two steps in the then block are synchronized which are executed at the same time.
-    setError(null);
-    // setIsLoading(false);
-    // Then React batches these 2 state updates.
-    // Which means it will render once and which updates both states.
+    dispatchHttp({ type: 'CLEAR' });
   };
 
   return (
     <div className='App'>
-      { error && <ErrorModal onClose={ clearError }>{ error }</ErrorModal> }
+      { httpState.error && <ErrorModal onClose={ clearError }>{ httpState.error }</ErrorModal> }
       <IngredientForm
         onAddIngredient={ addIngredientHandler }
-        loading={ isLoading } />
+        loading={ httpState.loading } />
 
       <section>
         <Search onLoadIngredients={ filteredIngredientsHandler } />

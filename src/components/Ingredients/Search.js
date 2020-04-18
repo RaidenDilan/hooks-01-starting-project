@@ -7,16 +7,13 @@ const Search = React.memo(props => {
   Search.displayName = 'Search';
 
   const { onLoadIngredients } = props; // Object Destrucuring
-  const [enteredFilter, setEnteredFilter] = useState([]);
+  const [enteredFilter, setEnteredFilter] = useState('');
   const inputRef = useRef();
 
   useEffect(() => {
     const timer = setTimeout(() => {
       if (enteredFilter === inputRef.current.value) {
-        const query = enteredFilter.length === 0
-          ? ''
-          : `?orderBy="title"&equalTo="${ enteredFilter }"`;
-          
+        const query = enteredFilter.length === 0 ? '' : `?orderBy="title"&equalTo="${ enteredFilter }"`;
         fetch('https://react-hooks-update-616c5.firebaseio.com/ingredients.json' + query)
           .then((res) => res.json())
           .then((resData) => {
@@ -47,7 +44,9 @@ const Search = React.memo(props => {
             ref={ inputRef }
             type='text'
             value={ enteredFilter }
-            onChange={ event => setEnteredFilter(event.target.value) } />
+            onChange={ event => {
+              setEnteredFilter(event.target.value);
+            } } />
         </div>
       </Card>
     </section>

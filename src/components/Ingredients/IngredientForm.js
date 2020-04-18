@@ -10,10 +10,7 @@ const IngredientForm = React.memo(props => {
   const [enteredAmount, setEnteredAmount] = useState('');
 
   const submitHandler = event => {
-    // CAN'T USE A HOOK IN A NESTED FUNCTION
-    // YOU ALSO CAN'T USE HOOKS IN A EXPRESSIONS
-    // useState();
-
+    // useState(); CAN'T USE A HOOK IN A NESTED FUNCTION... YOU ALSO CAN'T USE HOOKS IN A EXPRESSIONS
     event.preventDefault();
     props.onAddIngredient({ title: enteredTitle, amount: enteredAmount });
   };
@@ -28,7 +25,9 @@ const IngredientForm = React.memo(props => {
               type='text'
               id='title'
               value={ enteredTitle }
-              onChange={ event => setEnteredTitle(event.target.value) } />
+              onChange={ event => {
+                setEnteredTitle(event.target.value);
+              } } />
           </div>
           <div className='form-control'>
             <label htmlFor='amount'>Amount</label>
@@ -36,7 +35,9 @@ const IngredientForm = React.memo(props => {
               type='number'
               id='amount'
               value={ enteredAmount }
-              onChange={ event => setEnteredAmount(event.target.value) } />
+              onChange={ event => {
+                setEnteredAmount(event.target.value);
+              } } />
           </div>
           <div className='ingredient-form__actions'>
             <button type='submit'>Add Ingredient</button>
