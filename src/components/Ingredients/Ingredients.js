@@ -9,10 +9,18 @@ const Ingredients = () => {
   const [userIngredients, setUserIngredients] = useState([]); // pass in an array since we are creating a list
 
   const addIngredientHandler = ingredient => {
-    setUserIngredients(prevIngredients => [
-      ...prevIngredients,
-      { id: Math.random().toString(), ...ingredient }
-    ]);
+    fetch('https://react-hooks-update-616c5.firebaseio.com/ingredients.json', {
+      method: 'POST',
+      body: JSON.stringify(ingredient),
+      headers: { 'Content-Type': 'application/json' }
+    })
+    .then((res) => res.json())
+    .then((resData) => {
+      setUserIngredients(prevIngredients => [
+        ...prevIngredients,
+        { id: resData.name, ...ingredient }
+      ]);
+    });
   };
 
   const removeIngredientHandler = (ingredientId) => {
