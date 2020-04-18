@@ -12,7 +12,7 @@ const Search = React.memo(props => {
   useEffect(() => {
     const query = enteredFilter.length === 0
       ? ''
-      : `?orderBy="title&equalTo="${ enteredFilter }"`;
+      : `?orderBy="title"&equalTo="${ enteredFilter }"`;
     fetch('https://react-hooks-update-616c5.firebaseio.com/ingredients.json' + query)
       .then((res) => res.json())
       .then((resData) => {
@@ -24,7 +24,7 @@ const Search = React.memo(props => {
             amount: resData[key].amount
           });
         }
-        // onLoadIngredients(loadedIngredients);
+        onLoadIngredients(loadedIngredients);
       });
   }, [enteredFilter, onLoadIngredients]); // Only re run this useEffect if the value of the two arguements change. Else re-run the fetch api
 

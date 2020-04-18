@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 import IngredientForm from './IngredientForm';
 import IngredientList from './IngredientList';
@@ -15,11 +15,7 @@ const Ingredients = () => {
       .then((resData) => {
         const loadedIngredients = [];
         for (const key in resData) {
-          loadedIngredients.push({
-            id: key,
-            title: resData[key].title,
-            amount: resData[key].amount
-          });
+          loadedIngredients.push({ id: key, title: resData[key].title, amount: resData[key].amount });
         }
         setUserIngredients(loadedIngredients);
       });
@@ -27,8 +23,12 @@ const Ingredients = () => {
 
   useEffect(() => {
     // runs twice
-    console.log('RENDERING INGREIDNETS', userIngredients);
+    console.log('RENDERING INGREDIENTS', userIngredients);
   }, [userIngredients]);
+
+  const filteredIngredientsHandler = useCallback(filteredIngredients => {
+    setUserIngredients(filteredIngredients);
+  }, []); // this function has no dependencies, we leave an empty arr - []
 
   const addIngredientHandler = ingredient => {
     fetch('https://react-hooks-update-616c5.firebaseio.com/ingredients.json', {
@@ -37,7 +37,7 @@ const Ingredients = () => {
       headers: { 'Content-Type': 'application/json' }
     })
       .then((res) => res.json())
-      .then((resData) => {
+      .then((resData) => { 
         setUserIngredients(prevIngredients => [
           ...prevIngredients,
           { id: resData.name, ...ingredient }
@@ -47,10 +47,6 @@ const Ingredients = () => {
 
   const removeIngredientHandler = (ingredientId) => {
     setUserIngredients(prevIngredients => prevIngredients.filter((ingredient) => ingredient.id !== ingredientId));
-  };
-
-  const filteredIngredientsHandler = filteredIngrient => {
-    setUserIngredients(filteredIngrient);
   };
 
   return (
