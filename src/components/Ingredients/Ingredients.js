@@ -25,6 +25,11 @@ const Ingredients = () => {
       });
   }, []); /** @note Used like this, (with [] as a second arguement), useEffect() acts like componentDidMount: it runs ONLY ONCE (after the first render). */
 
+  useEffect(() => {
+    // runs twice
+    console.log('RENDERING INGREIDNETS', userIngredients);
+  }, [userIngredients]);
+
   const addIngredientHandler = ingredient => {
     fetch('https://react-hooks-update-616c5.firebaseio.com/ingredients.json', {
       method: 'POST',
