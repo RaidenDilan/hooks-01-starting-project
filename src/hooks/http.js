@@ -41,22 +41,19 @@ const useHttp = () => {
 
   const clear = useCallback(() => dispatchHttp({ type: 'CLEAR' }), []);
 
-  const sendRequest = useCallback(
-    (url, method, body, reqExtra, reqIndentifier) => {
-      dispatchHttp({ type: 'SEND', indentifier: reqIndentifier });
-      fetch(url, {
-        method: method,
-        body: body,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-        .then(response => response.json())
-        .then(responseData => dispatchHttp({ type: 'RESPONSE', responseData: responseData, extra: reqExtra }))
-        .catch(err => dispatchHttp({ type: 'ERROR', errorMsg: err.message }));
-    },
-    []
-  );
+  const sendRequest = useCallback((url, method, body, reqExtra, reqIndentifier) => {
+    dispatchHttp({ type: 'SEND', indentifier: reqIndentifier });
+    fetch(url, {
+      method: method,
+      body: body,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(response => response.json())
+      .then(responseData => dispatchHttp({ type: 'RESPONSE', responseData: responseData, extra: reqExtra }))
+      .catch(err => dispatchHttp({ type: 'ERROR', errorMsg: err.message }));
+  }, []);
 
   return {
     clear: clear,

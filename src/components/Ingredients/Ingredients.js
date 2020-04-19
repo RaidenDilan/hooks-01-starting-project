@@ -11,7 +11,7 @@ const ingredientReducer = (currentIngredients, action) => {
     case 'SET':
       return action.ingredients;
     case 'ADD':
-      return [...currentIngredients, action.ingredient]; // old array + new item
+      return [...currentIngredients, action.ingredient]; // old array, new item
     case 'DELETE':
       return currentIngredients.filter(ing => ing.id !== action.id);
     default:
