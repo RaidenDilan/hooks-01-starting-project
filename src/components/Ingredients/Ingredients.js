@@ -66,7 +66,7 @@ const Ingredients = () => {
 
   return (
     <div className='App'>
-      { error && <ErrorModal onClose={ clear }>{ error }</ErrorModal> }
+      { error && (<ErrorModal onClose={ clear }>{ error }</ErrorModal>) }
       <IngredientForm
         onAddIngredient={ addIngredientHandler }
         loading={ isLoading } />
