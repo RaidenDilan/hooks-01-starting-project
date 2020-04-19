@@ -12,7 +12,7 @@ import './IngredientList.css';
 
 const IngredientList = React.memo(props => {
   IngredientList.displayName = 'IngredientList';
-
+  
   return (
     <section className='ingredient-list'>
       <h2>Loaded Ingredients</h2>

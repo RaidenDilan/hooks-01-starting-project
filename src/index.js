@@ -6,10 +6,17 @@ import App from './App';
 
 import AuthContextProvider from './context/auth-context';
 
-const app = (
+// const app = (
+//   <AuthContextProvider>
+//     <App />
+//   </AuthContextProvider>
+// );
+
+// ReactDOM.render(app, document.getElementById('root'));
+
+ReactDOM.render(
   <AuthContextProvider>
     <App />
-  </AuthContextProvider>
+  </AuthContextProvider>,
+  document.getElementById('root')
 );
-
-ReactDOM.render(app, document.getElementById('root'));

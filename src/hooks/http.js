@@ -1,55 +1,71 @@
-
-import { useReducer, useCallback } from 'react';
 // CUSTOM HOOK
 // - Must start with 'use' then call it anything.
+import { useReducer, useCallback } from 'react';
+
+const initialState = {
+  loading: false,
+  error: null,
+  data: null,
+  extra: null,
+  indentifier: null
+};
 
 const httpReducer = (curHttpState, action) => {
   switch (action.type) {
     case 'SEND':
-      return { loading: true, error: null, data: null };
+      return {
+        loading: true,
+        error: null,
+        data: null,
+        extra: null,
+        indentifier: action.indentifier
+      };
     case 'RESPONSE':
-      return { ...curHttpState, loading: false, data: action.resData };
+      return {
+        ...curHttpState,
+        loading: false,
+        data: action.responseData,
+        extra: action.extra
+      };
     case 'ERROR':
-      return { loading: false, error: action.errorMsg };
+      return { loading: false, error: action.errorMessage };
     case 'CLEAR':
-      return { ...curHttpState, error: null };
+      return initialState;
     default:
-      throw new Error('Should not reach this point!!');
+      throw new Error('Should not be reached!');
   }
 };
 
 const useHttp = () => {
-  const [httpState, dispatchHttp] = useReducer(httpReducer, {
-    loading: false,
-    error: null,
-    data: null
-  });
+  const [httpState, dispatchHttp] = useReducer(httpReducer, initialState);
 
-  const sendRequest = useCallback((url, method, body) => {
-    dispatchHttp({ type: 'SEND' });
-    fetch(url, {
-      method: method,
-      body: body,
-      headers: {
-        'Content-type': 'application/json'
-      }
-    })
-      .then((res) => {
-        return res.json();
+  const clear = useCallback(() => dispatchHttp({ type: 'CLEAR' }), []);
+
+  const sendRequest = useCallback(
+    (url, method, body, reqExtra, reqIndentifier) => {
+      dispatchHttp({ type: 'SEND', indentifier: reqIndentifier });
+      fetch(url, {
+        method: method,
+        body: body,
+        headers: {
+          'Content-Type': 'application/json'
+        }
       })
-      .then((res) => {
-        dispatchHttp({ type: 'RESPONSE', resData: res });
-      })
-      .catch((err) => {
-        dispatchHttp({ type: 'ERROR', errorMsg: err.message });
-      });
-  }, []);
+        .then(response => response.json())
+        .then(responseData => dispatchHttp({ type: 'RESPONSE', responseData: responseData, extra: reqExtra }))
+        .catch(err => dispatchHttp({ type: 'ERROR', errorMsg: err.message }));
+    },
+    []
+  );
 
   return {
-    isLoading: httpState.loading,
+    clear: clear,
     data: httpState.data,
     error: httpState.error,
-    sendRequest: sendRequest
+    sendRequest: sendRequest,
+    reqExtra: httpState.extra,
+    isLoading: httpState.loading,
+    reqIndentifier: httpState.indentifier
   };
 };
 
