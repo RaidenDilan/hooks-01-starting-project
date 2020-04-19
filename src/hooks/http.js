@@ -43,6 +43,7 @@ const useHttp = () => {
 
   const sendRequest = useCallback((url, method, body, reqExtra, reqIndentifier) => {
     dispatchHttp({ type: 'SEND', indentifier: reqIndentifier });
+    // return fetch(url, {
     fetch(url, {
       method: method,
       body: body,

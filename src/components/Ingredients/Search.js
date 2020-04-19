@@ -23,6 +23,10 @@ const Search = React.memo(props => {
           'https://react-hooks-update-616c5.firebaseio.com/ingredients.json' + query,
           'GET'
         );
+        // You could make sendRequest to return a promise by add return in front of the fetch method inside the sendRequest function.
+        // Then here we can also use the Promise chain.
+        // .then(() => {})
+        // .catch(() => {})
       }
     }, 500);
     return () => {
